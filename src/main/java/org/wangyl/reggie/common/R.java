@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 通用的返回结果类，服务端相应的数据最终都会封装成此对象
+ * 通用的返回结果类，服务端响应的数据最终都会封装成此对象
  * @param <T>
  */
 @Data
