@@ -28,7 +28,7 @@ public class EmployeeController {
     //员工登录
     @PostMapping("/login")// 向/employee/login发起post请求
     // 加入request是因为需要把员工id存入request的session中，如果不存session，后续跳转其他页面就不知道它有没有登录
-    // @RequestBody将固定格式的数据封装为JavaBean对象
+    // @RequestBody将固定格式的数据(如json)封装为JavaBean对象
     public R<Employee> login(HttpServletRequest request, @RequestBody Employee employee) {
 
         //1、将页面提交的密码password进行md5加密处理
@@ -76,14 +76,16 @@ public class EmployeeController {
         //设置初始密码123456，但是要md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
 
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
+        //这部分属于公共字段，很多表中都有，可以把它们放在某个地方统一处理
+        //employee.setCreateTime(LocalDateTime.now());
+        //employee.setUpdateTime(LocalDateTime.now());
 
         //获得当前用户的ID
         Long empId = (Long) request.getSession().getAttribute("employee");
 
-        employee.setCreateUser(empId);
-        employee.setUpdateUser(empId);
+        //这部分属于公共字段，很多表中都有，可以把它们放在某个地方统一处理
+        //employee.setCreateUser(empId);
+        //employee.setUpdateUser(empId);
 
         //数据库insert操作
         employeeService.save(employee);
@@ -100,8 +102,8 @@ public class EmployeeController {
         Page pageInfo = new Page(page,pageSize);
 
         //构造条件构造器
-        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper();
-        //添加过滤条件
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
+        //添加过滤条件(如果第一个参数为false，则不会执行)
         queryWrapper.like(StringUtils.isNotEmpty(name),Employee::getName,name);
         //添加排序条件
         queryWrapper.orderByDesc(Employee::getUpdateTime);
@@ -117,8 +119,12 @@ public class EmployeeController {
     public R<String> update(HttpServletRequest request, @RequestBody Employee employee){
         log.info(employee.toString());
         Long employeeId = (Long) request.getSession().getAttribute("employee");
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(employeeId);
+
+
+        //这部分属于公共字段，已统一处理
+        //employee.setUpdateTime(LocalDateTime.now());
+        //employee.setUpdateUser(employeeId);
+
         //因为JS的精度问题，这里的id和数据库中的不一致
         //可以使用JacksonObjectMapper，完成Java Object到json的转换
         employeeService.updateById(employee);

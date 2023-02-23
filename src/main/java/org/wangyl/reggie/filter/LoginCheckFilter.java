@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.util.AntPathMatcher;
+import org.wangyl.reggie.common.BaseContext;
 import org.wangyl.reggie.common.R;
 
 import javax.servlet.*;
@@ -36,7 +37,8 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",//正常登录途径
                 "/employee/logout",
                 "/backend/**",//静态资源不作限制
-                "/front/**"
+                "/front/**",
+                "/common/**"
         };
 
         //2、判断本次请求是否需要处理
@@ -51,7 +53,12 @@ public class LoginCheckFilter implements Filter {
 
         //4、判断登录状态，如果已登录则放行
         if(request.getSession().getAttribute("employee")!=null){
-            log.info("用户已登录，ID为：{}",request.getSession().getAttribute("employee"));
+            Long empId =(Long) request.getSession().getAttribute("employee");
+
+            log.info("用户已登录，ID为：{}",empId);
+
+            BaseContext.setCurrentId(empId);
+
             filterChain.doFilter(request,response);
             return;
         }
