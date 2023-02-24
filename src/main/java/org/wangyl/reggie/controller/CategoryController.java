@@ -30,10 +30,10 @@ public class CategoryController {
 
     //分类信息分页查询
     @GetMapping("/page")
-    public R<Page> page(int page,int pageSize){
+    public R<Page<Category>> page(int page,int pageSize){
 
         //构造分页构造器
-        Page pageInfo = new Page(page,pageSize);
+        Page<Category> pageInfo = new Page<>(page,pageSize);
 
         //构造条件构造器
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
