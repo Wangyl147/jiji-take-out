@@ -104,5 +104,21 @@ public class DishController {
         return R.success("菜品修改成功");
     }
 
+    //根据条件查询菜品数据
+    @GetMapping("list")
+    public R<List<Dish>> list(Dish dish){//使用dish类型，泛用性更强
+
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId());
+        //过滤，只保留启售菜品
+        queryWrapper.eq(Dish::getStatus,1);
+        queryWrapper.orderByAsc(Dish::getSort);
+        queryWrapper.orderByDesc(Dish::getUpdateTime);
+
+        List<Dish> list = dishService.list(queryWrapper);
+        return R.success(list);
+    }
+
+    //TODO:完成菜品的启停售和删除功能
 
 }
