@@ -75,9 +75,6 @@ public class SetmealController {
         return R.success(setmealDtoPage);
     }
 
-    //改变套餐状态
-
-
     //删除套餐
     @DeleteMapping
     public R<String> delete(@RequestParam List<Long> ids){
