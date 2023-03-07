@@ -94,6 +94,7 @@ public class EmployeeController {
     }
 
     //员工信息分页查询
+    //在开始时调用，也会在列表信息变动、搜索员工时调用
     @GetMapping("/page")//向/employee/page发起get请求
     public R<Page> page(int page, int pageSize, String name){
         log.info("page={},pagesize={},name={}",page,pageSize,name);
@@ -115,6 +116,7 @@ public class EmployeeController {
     }
 
     //根据我们的id修改员工信息
+    //会在修改员工信息时调用，也会在禁用、启用员工时调用
     @PutMapping
     public R<String> update(HttpServletRequest request, @RequestBody Employee employee){
         log.info(employee.toString());
@@ -132,6 +134,7 @@ public class EmployeeController {
     }
 
     //根据我们的id查询员工信息
+    //会在进入修改界面时调用，用来回显员工信息
     @GetMapping("/{id}")
     public R<Employee> getById(@PathVariable Long id){
         log.info("根据id查询员工信息");

@@ -40,6 +40,7 @@ public class DishController {
     }
 
     //菜品信息分页查询
+    //在开始时调用，也会在列表信息变动、搜索时调用
     @GetMapping("/page")
     public R<Page<DishDto>> page(int page,int pageSize,String name){
         /*
@@ -89,6 +90,7 @@ public class DishController {
     }
 
     //根据我们的id查询菜品信息和口味信息
+    //会在进入修改界面时调用，用来回显菜品信息
     @GetMapping("/{id}")
     //返回值要和页面对应
     public R<DishDto> getById(@PathVariable Long id){
@@ -105,7 +107,8 @@ public class DishController {
     }
 
     //根据条件查询菜品数据
-    @GetMapping("list")
+    //在新建、添加套餐中会被调用，根据分类id查菜品
+    @GetMapping("/list")
     public R<List<Dish>> list(Dish dish){//使用dish类型，泛用性更强
 
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
@@ -120,5 +123,28 @@ public class DishController {
     }
 
     //TODO:完成菜品的启停售和删除功能
+
+    //根据id进行停售
+    //停售之前，关联的套餐也要停售
+    @PostMapping("/status/0")
+    public R<String> stop(@RequestParam List<Long> ids){
+        dishService.stop(ids);
+        return R.success("菜品已停售");
+    }
+
+    //启售菜品
+    @PostMapping("/status/1")
+    public R<String> start(@RequestParam List<Long> ids){
+        dishService.start(ids);
+        return R.success("菜品已启售");
+    }
+
+    //既能单删，又能批量删除
+    //删除之前，关联的套餐也要删除
+    @DeleteMapping
+    public R<String> batchDelete(@RequestParam List<Long> ids){
+        dishService.deleteWithRelations(ids);
+        return R.success("菜品已删除");
+    }
 
 }

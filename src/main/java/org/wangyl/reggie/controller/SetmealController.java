@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.wangyl.reggie.common.R;
+import org.wangyl.reggie.dto.DishDto;
 import org.wangyl.reggie.dto.SetmealDto;
 import org.wangyl.reggie.entity.Category;
 import org.wangyl.reggie.entity.Setmeal;
@@ -85,9 +86,34 @@ public class SetmealController {
 
 
     //TODO：完成套餐的启停售和修改功能
+    //停售套餐
+    @PostMapping("/status/0")
+    public R<String> stop(@RequestParam List<Long> ids){
+        setmealService.stop(ids);
+        return R.success("套餐停售成功");
+    }
 
-    //回显套餐信息
+    //启售套餐
+    @PostMapping("/status/1")
+    public R<String> start(@RequestParam List<Long> ids){
+        setmealService.start(ids);
+        return R.success("套餐停售成功");
+    }
 
+    //根据我们的id查询套餐信息
+    //会在进入修改界面时调用，用来回显菜品信息
+    @GetMapping("/{id}")
+    //返回值要和页面对应
+    public R<SetmealDto> getById(@PathVariable Long id){
+        SetmealDto setmealDto = setmealService.getWithDishesById(id);
+        return R.success(setmealDto);
+    }
 
     // 修改套餐
+    @PutMapping
+    public R<String> update(@RequestBody SetmealDto setmealDto){
+        setmealService.updateWithDishes(setmealDto);
+        return R.success("");
+    }
+
 }

@@ -29,6 +29,7 @@ public class CategoryController {
     }
 
     //分类信息分页查询
+    //在开始时调用，也会在列表信息变动、搜索时调用
     @GetMapping("/page")
     public R<Page<Category>> page(int page,int pageSize){
 
@@ -51,13 +52,12 @@ public class CategoryController {
     @DeleteMapping
     public R<String> delete(Long ids){
         log.info("删除分类，id为{}",ids);
-
-        //categoryService.removeById(ids);
         categoryService.remove(ids);
         return R.success("分类删除成功");
     }
 
     //根据id修改分类信息
+    //会在修改时调用
     @PutMapping
     public R<String> update(@RequestBody Category category){
         log.info("修改分类信息{}",category);
@@ -66,6 +66,10 @@ public class CategoryController {
     }
 
     //根据条件查询分类数据
+    //不会在进入分类修改界面时调用以用于回显（因为分类修改界面不是一个单独的界面，而是一个对话框）
+    //会在添加和修改菜品时调用，用来为菜品提供一个分类选项
+    //还会在添加和修改套餐时调用，用来为套餐提供一个分类选项
+    //此外，在添加和修改套餐时，这个方法还会被调用，返回各个菜品的分类，为选择套餐菜品做准备
     @GetMapping("/list")
     public R<List<Category>> list(Category category){
 
