@@ -96,11 +96,11 @@ public class EmployeeController {
     //员工信息分页查询
     //在开始时调用，也会在列表信息变动、搜索员工时调用
     @GetMapping("/page")//向/employee/page发起get请求
-    public R<Page> page(int page, int pageSize, String name){
+    public R<Page<Employee>> page(int page, int pageSize, String name){
         log.info("page={},pagesize={},name={}",page,pageSize,name);
 
         //构造分页构造器
-        Page pageInfo = new Page(page,pageSize);
+        Page<Employee> pageInfo = new Page<>(page,pageSize);
 
         //构造条件构造器
         LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
