@@ -1,6 +1,7 @@
 package org.wangyl.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +13,7 @@ import org.wangyl.reggie.common.R;
 import org.wangyl.reggie.dto.DishDto;
 import org.wangyl.reggie.entity.Category;
 import org.wangyl.reggie.entity.Dish;
+import org.wangyl.reggie.entity.DishFlavor;
 import org.wangyl.reggie.service.CategoryService;
 import org.wangyl.reggie.service.DishFlavorService;
 import org.wangyl.reggie.service.DishService;
@@ -30,6 +32,9 @@ public class DishController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishFlavorService dishFlavorService;
 
     //新增菜品
     @PostMapping
@@ -108,36 +113,55 @@ public class DishController {
 
     //根据条件查询菜品数据
     //在新建、添加套餐中会被调用，根据分类id查菜品
+    //也会在用户端被调用，所以还需要传一个口味信息
     @GetMapping("/list")
-    public R<List<Dish>> list(Dish dish){//使用dish类型，泛用性更强
-
+    public R<List<DishDto>> list(Dish dish){//使用dish类型，泛用性更强
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId());
         //过滤，只保留启售菜品
+        //select * from dish where category_id=?/name=?
         queryWrapper.eq(Dish::getStatus,1);
+        queryWrapper.like(null!=dish.getName(),Dish::getName, dish.getName());
         queryWrapper.orderByAsc(Dish::getSort);
         queryWrapper.orderByDesc(Dish::getUpdateTime);
 
         List<Dish> list = dishService.list(queryWrapper);
-        return R.success(list);
+
+        //补全口味信息
+        List<DishDto> dtoList = list.stream().map((item) -> dishService.getWithFlavorById(item.getId())).collect(Collectors.toList());
+
+        return R.success(dtoList);
     }
 
     //TODO:完成菜品的启停售和删除功能
 
-    //根据id进行停售
-    //停售之前，关联的套餐也要停售
-    @PostMapping("/status/0")
-    public R<String> stop(@RequestParam List<Long> ids){
-        dishService.stop(ids);
-        return R.success("菜品已停售");
+    //根据id改变启停售状态
+    @PostMapping("/status/{newStatus}")
+    public R<String> changeStatus(@PathVariable int newStatus,@RequestParam List<Long> ids){
+        //update dish set status=0/1 where id in ids and status=1/0
+        LambdaUpdateWrapper<Dish> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Dish::getStatus,newStatus==0?1:0);
+        updateWrapper.in(Dish::getId,ids);
+        updateWrapper.set(Dish::getStatus,newStatus);
+        dishService.update(updateWrapper);
+        return R.success("");
     }
 
-    //启售菜品
-    @PostMapping("/status/1")
-    public R<String> start(@RequestParam List<Long> ids){
-        dishService.start(ids);
-        return R.success("菜品已启售");
-    }
+//
+//    //根据id进行停售
+//    //停售之前，关联的套餐也要停售
+//    @PostMapping("/status/0")
+//    public R<String> stop(@RequestParam List<Long> ids){
+//        dishService.stop(ids);
+//        return R.success("菜品已停售");
+//    }
+//
+//    //启售菜品
+//    @PostMapping("/status/1")
+//    public R<String> start(@RequestParam List<Long> ids){
+//        dishService.start(ids);
+//        return R.success("菜品已启售");
+//    }
 
     //既能单删，又能批量删除
     //删除之前，关联的套餐也要删除

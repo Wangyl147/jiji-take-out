@@ -1,6 +1,7 @@
 package org.wangyl.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -11,9 +12,11 @@ import org.wangyl.reggie.common.R;
 import org.wangyl.reggie.dto.DishDto;
 import org.wangyl.reggie.dto.SetmealDto;
 import org.wangyl.reggie.entity.Category;
+import org.wangyl.reggie.entity.Dish;
 import org.wangyl.reggie.entity.Setmeal;
 import org.wangyl.reggie.entity.SetmealDish;
 import org.wangyl.reggie.service.CategoryService;
+import org.wangyl.reggie.service.DishService;
 import org.wangyl.reggie.service.SetmealDishService;
 import org.wangyl.reggie.service.SetmealService;
 
@@ -34,6 +37,9 @@ public class SetmealController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishService dishService;
 
     //添加套餐
     @PostMapping
@@ -83,22 +89,48 @@ public class SetmealController {
         return R.success("套餐删除成功");
     }
 
+    //根据条件查询套餐数据
+    //会在用户端被调用
+    @GetMapping("/list")
+    public R<List<Setmeal>> list(Setmeal setmeal){
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(setmeal.getCategoryId() != null,Setmeal::getCategoryId,setmeal.getCategoryId());
+        queryWrapper.eq(setmeal.getStatus() != null,Setmeal::getStatus,setmeal.getStatus());
+        queryWrapper.orderByDesc(Setmeal::getUpdateTime);
+
+        List<Setmeal> list = setmealService.list(queryWrapper);
+
+        return R.success(list);
+    }
 
 
     //TODO：完成套餐的启停售和修改功能
-    //停售套餐
-    @PostMapping("/status/0")
-    public R<String> stop(@RequestParam List<Long> ids){
-        setmealService.stop(ids);
-        return R.success("套餐停售成功");
+
+    //根据id改变启停售状态
+    @PostMapping("/status/{newStatus}")
+    public R<String> changeStatus(@PathVariable int newStatus,@RequestParam List<Long> ids) {
+        //update setmeal set status=0/1 where id in ids and status=1/0
+        LambdaUpdateWrapper<Setmeal> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Setmeal::getStatus, newStatus == 0 ? 1 : 0);
+        updateWrapper.in(Setmeal::getId, ids);
+        updateWrapper.set(Setmeal::getStatus, newStatus);
+        setmealService.update(updateWrapper);
+        return R.success("");
     }
 
-    //启售套餐
-    @PostMapping("/status/1")
-    public R<String> start(@RequestParam List<Long> ids){
-        setmealService.start(ids);
-        return R.success("套餐停售成功");
-    }
+//    //停售套餐
+//    @PostMapping("/status/0")
+//    public R<String> stop(@RequestParam List<Long> ids){
+//        setmealService.stop(ids);
+//        return R.success("套餐停售成功");
+//    }
+//
+//    //启售套餐
+//    @PostMapping("/status/1")
+//    public R<String> start(@RequestParam List<Long> ids){
+//        setmealService.start(ids);
+//        return R.success("套餐停售成功");
+//    }
 
     //根据我们的id查询套餐信息
     //会在进入修改界面时调用，用来回显菜品信息
@@ -114,6 +146,25 @@ public class SetmealController {
     public R<String> update(@RequestBody SetmealDto setmealDto){
         setmealService.updateWithDishes(setmealDto);
         return R.success("");
+    }
+
+    //显示菜品详情
+    @GetMapping("/dish/{id}")
+    public R<List<DishDto>> getDishes(@PathVariable Long id){
+        //select * from setmeal_dish where setmeal_id=?
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId,id);
+        List<SetmealDish> setmealDishes = setmealDishService.list(queryWrapper);
+
+        List<DishDto> dishDtoList = setmealDishes.stream().map((item) -> {
+            //select * from dish where id = ?
+            DishDto dishDto=new DishDto();
+            Dish dish = dishService.getById(item.getDishId());
+            BeanUtils.copyProperties(dish,dishDto);
+            dishDto.setCopies(item.getCopies());
+            return dishDto;
+        }).collect(Collectors.toList());
+        return R.success(dishDtoList);
     }
 
 }

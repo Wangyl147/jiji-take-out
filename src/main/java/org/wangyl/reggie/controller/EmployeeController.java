@@ -120,10 +120,9 @@ public class EmployeeController {
     @PutMapping
     public R<String> update(HttpServletRequest request, @RequestBody Employee employee){
         log.info(employee.toString());
-        Long employeeId = (Long) request.getSession().getAttribute("employee");
-
 
         //这部分属于公共字段，已统一处理
+        // Long employeeId = (Long) request.getSession().getAttribute("employee");
         //employee.setUpdateTime(LocalDateTime.now());
         //employee.setUpdateUser(employeeId);
 
