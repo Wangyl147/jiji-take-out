@@ -61,6 +61,7 @@ public class ShoppingCartController {
     @PostMapping("/sub")
     public R<ShoppingCart> sub(@RequestBody ShoppingCart shoppingCart){
         shoppingCart.setUserId(BaseContext.getCurrentId());
+
         //判断购物车里有没有对应id的商品
         //select * from shopping_cart where user_id=? and dish_id=?/setmeal_id=?
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
