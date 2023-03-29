@@ -18,8 +18,32 @@
 *.zip
 *.tar.gz
 *.rar
+*.iml
+*.iws
+*.ipr
+
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
 .DS_Store
+logs
+.gitignorerebel.xml
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.apt_generated
+
+target/
+log.path_IS_UNDEFINED
+offline_user.md
+.idea
+build/
+nbbuild/
+.nb-gradle/
+dist/
+nbdist/
+nbproject/private/
+generatorConfig.xml
