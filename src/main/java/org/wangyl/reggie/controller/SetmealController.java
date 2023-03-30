@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import org.wangyl.reggie.common.R;
 import org.wangyl.reggie.dto.DishDto;
@@ -43,6 +46,7 @@ public class SetmealController {
 
     //添加套餐
     @PostMapping
+    @CacheEvict(value = "setmeal_cache",allEntries = true)//删除所有缓存的套餐
     public R<String> save(@RequestBody SetmealDto setmealDto){
         setmealService.saveWithRelations(setmealDto);
         return R.success("套餐添加成功");
@@ -84,6 +88,7 @@ public class SetmealController {
 
     //删除套餐
     @DeleteMapping
+    @CacheEvict(value = "setmeal_cache",allEntries = true)//删除所有缓存的套餐
     public R<String> delete(@RequestParam List<Long> ids){
         setmealService.deleteWithRelations(ids);
         return R.success("套餐删除成功");
@@ -92,6 +97,8 @@ public class SetmealController {
     //根据条件查询套餐数据
     //会在用户端被调用
     @GetMapping("/list")
+    @Cacheable(value = "setmeal_cache",key="#setmeal.categoryId+'_'+#setmeal.status")
+    //为了让返回值能够存入缓存，需要将R视为serializable的
     public R<List<Setmeal>> list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(setmeal.getCategoryId() != null,Setmeal::getCategoryId,setmeal.getCategoryId());
@@ -102,9 +109,6 @@ public class SetmealController {
 
         return R.success(list);
     }
-
-
-    //TODO：完成套餐的启停售和修改功能
 
     //根据id改变启停售状态
     @PostMapping("/status/{newStatus}")
@@ -118,19 +122,6 @@ public class SetmealController {
         return R.success("");
     }
 
-//    //停售套餐
-//    @PostMapping("/status/0")
-//    public R<String> stop(@RequestParam List<Long> ids){
-//        setmealService.stop(ids);
-//        return R.success("套餐停售成功");
-//    }
-//
-//    //启售套餐
-//    @PostMapping("/status/1")
-//    public R<String> start(@RequestParam List<Long> ids){
-//        setmealService.start(ids);
-//        return R.success("套餐停售成功");
-//    }
 
     //根据我们的id查询套餐信息
     //会在进入修改界面时调用，用来回显菜品信息

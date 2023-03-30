@@ -42,9 +42,9 @@ public class LoginCheckFilter implements Filter {
                 "/user/sendMsg",//获取验证码
                 "/user/login"//登录url须放行
         };
-
         //2、判断本次请求是否需要处理
         boolean check = check(urls,requestURI);
+
 
         //3、如果不需要处理，直接放行
         if (check){
