@@ -8,6 +8,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.wangyl.reggie.common.R;
 import org.wangyl.reggie.dto.DishDto;
@@ -19,6 +21,7 @@ import org.wangyl.reggie.service.DishFlavorService;
 import org.wangyl.reggie.service.DishService;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 //菜品管理
@@ -36,11 +39,23 @@ public class DishController {
     @Autowired
     private DishFlavorService dishFlavorService;
 
+    //每次查询菜品都必须大量查询数据库，在高并发状态下会影响性能。
+    //所以需要用redis缓存需要频繁查询的菜品
+    //不但要改造list方法，也要改造update和save方法，删除原来的缓存，防止脏数据的出现
+    //说到底就是保证一致性
+    @Autowired
+    private RedisTemplate<Object ,Object> redisTemplate;
+
     //新增菜品
     @PostMapping
     public R<String> save(@RequestBody DishDto dishDto){//不能用Dish，因为有多余字段，用另外一个类接收
         log.info(dishDto.toString());
+        //清空redis中key对应的内容
+        String key = "dish_" + dishDto.getCategoryId()+"_1";
+        redisTemplate.delete(key);
+
         dishService.saveWithFlavor(dishDto);
+
         return R.success("新增菜品成功");
     }
 
@@ -107,6 +122,11 @@ public class DishController {
     //根据我们的id修改菜品信息和口味信息
     @PutMapping
     public R<String> update(@RequestBody DishDto dishDto){
+
+        //清空redis中key对应的内容
+        String key = "dish_" + dishDto.getCategoryId()+"_1";
+        redisTemplate.delete(key);
+
         dishService.updateWithFlavor(dishDto);
         return R.success("菜品修改成功");
     }
@@ -116,6 +136,15 @@ public class DishController {
     //也会在用户端被调用，所以还需要传一个口味信息
     @GetMapping("/list")
     public R<List<DishDto>> list(Dish dish){//使用dish类型，泛用性更强
+
+        //动态构造key，同时显示分类id和状态
+        String key ="dish_" + dish.getCategoryId()+"_"+dish.getStatus();
+        List<DishDto> dishes = (List<DishDto>) redisTemplate.opsForValue().get(key);
+        //如果存在，无需查询数据库
+        if(dishes!=null){
+            return R.success(dishes);
+        }
+
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId());
         //过滤，只保留启售菜品
@@ -129,6 +158,9 @@ public class DishController {
 
         //补全口味信息
         List<DishDto> dtoList = list.stream().map((item) -> dishService.getWithFlavorById(item.getId())).collect(Collectors.toList());
+
+        //如果不存在，则存入redis，有效期60分钟
+        redisTemplate.opsForValue().set(key,dtoList,60, TimeUnit.MINUTES);
 
         return R.success(dtoList);
     }
@@ -147,21 +179,6 @@ public class DishController {
         return R.success("");
     }
 
-//
-//    //根据id进行停售
-//    //停售之前，关联的套餐也要停售
-//    @PostMapping("/status/0")
-//    public R<String> stop(@RequestParam List<Long> ids){
-//        dishService.stop(ids);
-//        return R.success("菜品已停售");
-//    }
-//
-//    //启售菜品
-//    @PostMapping("/status/1")
-//    public R<String> start(@RequestParam List<Long> ids){
-//        dishService.start(ids);
-//        return R.success("菜品已启售");
-//    }
 
     //既能单删，又能批量删除
     //删除之前，关联的套餐也要删除
