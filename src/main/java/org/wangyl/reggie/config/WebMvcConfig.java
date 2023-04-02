@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Configuration // 为了说明这是配置类
 @EnableSwagger2
-@EnableKnife4j
+
 public class WebMvcConfig extends WebMvcConfigurationSupport {
     // 设置静态资源映射
     @Override
