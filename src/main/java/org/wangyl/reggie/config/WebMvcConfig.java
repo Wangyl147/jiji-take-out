@@ -1,17 +1,26 @@
 package org.wangyl.reggie.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.wangyl.reggie.common.JacksonObjectMapper;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.List;
 
 @Slf4j
 @Configuration // 为了说明这是配置类
+@EnableSwagger2
+@EnableKnife4j
 public class WebMvcConfig extends WebMvcConfigurationSupport {
     // 设置静态资源映射
     @Override
@@ -20,6 +29,8 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         // addResourceHandler接网页url，addResourceLocations接本地资源位置
         registry.addResourceHandler("/backend/**").addResourceLocations("classpath:/backend/");
         registry.addResourceHandler("/front/**").addResourceLocations("classpath:/front/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
     }
 
     //扩展Mvc框架的消息转换器
@@ -33,6 +44,23 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         messageConverter.setObjectMapper(new JacksonObjectMapper());
         //将上面的消息转换器追加到mvc框架的集合中，把我们的放在最前面
         converters.add(0,messageConverter);
+    }
+
+    @Bean
+    public Docket createRestApi(){
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("org.wangyl.reggie.controller"))
+                .build();
+    }
+
+    private ApiInfo apiInfo(){
+        return new ApiInfoBuilder()
+                .title("瑞吉外卖")
+                .version("1.5")
+                .description("瑞吉外卖接口文档")
+                .build();
     }
 }
 // 先写好前端，确定后端接口和功能，然后再看数据库表的设计

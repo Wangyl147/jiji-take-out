@@ -40,7 +40,11 @@ public class LoginCheckFilter implements Filter {
                 "/front/**",
                 "/common/**",
                 "/user/sendMsg",//获取验证码
-                "/user/login"//登录url须放行
+                "/user/login",//登录url须放行
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs"
         };
         //2、判断本次请求是否需要处理
         boolean check = check(urls,requestURI);
