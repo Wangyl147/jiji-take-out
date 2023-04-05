@@ -69,5 +69,5 @@ mybatis-plus:
     db-config:
       id-type: ASSIGN_ID
 jiji:
-  path: /Users/wyl/img
-  #path: /usr/local/app/img/
+  #path: /Users/wyl/img
+  path: /usr/local/app/img/
