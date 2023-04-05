@@ -46,21 +46,5 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         converters.add(0,messageConverter);
     }
 
-    @Bean
-    public Docket createRestApi(){
-        return new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(apiInfo())
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("org.wangyl.reggie.controller"))
-                .build();
-    }
-
-    private ApiInfo apiInfo(){
-        return new ApiInfoBuilder()
-                .title("瑞吉外卖")
-                .version("1.5")
-                .description("瑞吉外卖接口文档")
-                .build();
-    }
 }
 // 先写好前端，确定后端接口和功能，然后再看数据库表的设计
