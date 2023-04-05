@@ -37,7 +37,7 @@ import java.util.UUID;
 @RequestMapping("/common")
 public class CommonController {
 
-    @Value("${reggie.path}")
+    @Value("${jiji.path}")
     private String basePath;
 
     //上传
