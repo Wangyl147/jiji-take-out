@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.wangyl.reggie.ReggieApplication;
+import org.wangyl.jiji.JijiApplication;
 
 import java.util.List;
 import java.util.Set;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 
 //需要遵从spring约定大于配置的习惯，要么测试类和启动类位于同一目录，要么测试类规定启动类
-@SpringBootTest(classes = ReggieApplication.class)
+@SpringBootTest(classes = JijiApplication.class)
 @RunWith(SpringRunner.class)
 public class RedisTest {
 
