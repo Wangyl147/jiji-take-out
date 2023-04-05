@@ -7,15 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+
 import org.springframework.web.bind.annotation.*;
 import org.wangyl.reggie.common.R;
 import org.wangyl.reggie.dto.DishDto;
 import org.wangyl.reggie.entity.Category;
 import org.wangyl.reggie.entity.Dish;
-import org.wangyl.reggie.entity.DishFlavor;
+
 import org.wangyl.reggie.service.CategoryService;
 import org.wangyl.reggie.service.DishFlavorService;
 import org.wangyl.reggie.service.DishService;

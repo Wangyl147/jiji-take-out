@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wangyl.reggie.common.R;
-import org.wangyl.reggie.common.SMSUtils;
+
 import org.wangyl.reggie.common.ValidateCodeUtils;
 import org.wangyl.reggie.entity.User;
 import org.wangyl.reggie.service.UserService;

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.wangyl.reggie.common.R;
 import org.wangyl.reggie.entity.Category;
-import org.wangyl.reggie.entity.Employee;
 import org.wangyl.reggie.service.CategoryService;
 
 import java.util.List;

@@ -2,7 +2,6 @@ package org.wangyl.reggie.filter;
 
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.util.AntPathMatcher;
 import org.wangyl.reggie.common.BaseContext;
 import org.wangyl.reggie.common.R;
