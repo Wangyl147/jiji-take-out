@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>org.wangyl</groupId>
-    <artifactId>reggie_take_out</artifactId>
+    <artifactId>jiji_take_out</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
