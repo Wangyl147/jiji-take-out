@@ -8,3 +8,4 @@
 .svn
 CVS
 *.yarb
+tmp/
