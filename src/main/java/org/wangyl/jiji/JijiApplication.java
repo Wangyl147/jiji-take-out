@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ServletComponentScan //为了让启动时能够扫描组件，找到filter
 @EnableTransactionManagement // 事务支持
 @EnableCaching
+@EnableAspectJAutoProxy
 public class JijiApplication {
     public static void main(String[] args) {
         SpringApplication.run(JijiApplication.class,args);

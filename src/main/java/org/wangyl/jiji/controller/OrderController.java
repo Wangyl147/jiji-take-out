@@ -37,7 +37,7 @@ public class OrderController {
     }
 
     //订单分页查询
-    @GetMapping("/userPage")
+    @GetMapping({"/userPage","/page"})
     public R<Page<OrdersDto>> page(int page, int pageSize){
         Page<Orders> originPage = new Page<>(page,pageSize);
         Page<OrdersDto> dtoPage = new Page<>(page,pageSize);
@@ -45,7 +45,7 @@ public class OrderController {
         //查询订单基本信息
         LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
         // select * from orders where user_id=? order by ? DESC
-        queryWrapper.eq(Orders::getUserId, BaseContext.getCurrentId());
+        queryWrapper.eq(BaseContext.getCurrentId()!=null,Orders::getUserId, BaseContext.getCurrentId());
         queryWrapper.orderByDesc(Orders::getOrderTime);
         ordersService.page(originPage,queryWrapper);
 
