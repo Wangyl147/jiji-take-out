@@ -4,7 +4,9 @@ package org.wangyl.jiji.aop;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.BeanUtils;
@@ -33,13 +35,13 @@ public class OrderAdvice {
     private void pointCut(){
     }
 
-    @Around(value = "pointCut()")
+    @AfterReturning(value = "pointCut()",returning = "r")
+    public Object advice(JoinPoint jp,R<Page<Orders>> r) throws Throwable {
 
-    public Object advice(ProceedingJoinPoint pjp) throws Throwable {
-        int page= (int) pjp.getArgs()[0];
-        int pageSize= (int) pjp.getArgs()[1];
+        Page<Orders> originPage = r.getData();
+        int page= (int) jp.getArgs()[0];
+        int pageSize= (int) jp.getArgs()[1];
         Page<OrdersDto> dtoPage = new Page<>(page,pageSize);
-        Page<Orders> originPage = (Page<Orders>) ((R)pjp.proceed()).getData();
         BeanUtils.copyProperties(originPage,dtoPage,"records");
         List<OrdersDto> ordersDtos = originPage.getRecords().stream().map((item) -> {
             OrdersDto ordersDto = new OrdersDto();
