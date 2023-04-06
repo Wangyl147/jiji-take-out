@@ -10,3 +10,4 @@ CVS
 *.yarb
 tmp/
 backend/
+README.md
