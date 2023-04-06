@@ -25,8 +25,7 @@ public class OrderController {
     @Autowired
     private OrdersService ordersService;
 
-    @Autowired
-    private OrderDetailService orderDetailService;
+
 
     //用户下单
     @PostMapping("/submit")
@@ -37,32 +36,31 @@ public class OrderController {
     }
 
     //订单分页查询
-    @GetMapping({"/userPage","/page"})
-    public R<Page<OrdersDto>> page(int page, int pageSize){
+    @GetMapping("/userPage")
+    public R<Page<Orders>> page(int page,int pageSize){
         Page<Orders> originPage = new Page<>(page,pageSize);
-        Page<OrdersDto> dtoPage = new Page<>(page,pageSize);
-
         //查询订单基本信息
         LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
         // select * from orders where user_id=? order by ? DESC
-        queryWrapper.eq(BaseContext.getCurrentId()!=null,Orders::getUserId, BaseContext.getCurrentId());
+        queryWrapper.eq(Orders::getUserId, BaseContext.getCurrentId());
         queryWrapper.orderByDesc(Orders::getOrderTime);
         ordersService.page(originPage,queryWrapper);
+        return R.success(originPage);
+    }
 
-        BeanUtils.copyProperties(originPage,dtoPage,"records");
-        List<OrdersDto> ordersDtos = originPage.getRecords().stream().map((item) -> {
-            OrdersDto ordersDto = new OrdersDto();
-            BeanUtils.copyProperties(item, ordersDto);
-            //select * from order_detail where order_id=?
-            if (item.getId() == null) {
-                throw new CustomException("订单不存在");
-            }
-            LambdaQueryWrapper<OrderDetail> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-            lambdaQueryWrapper.eq(OrderDetail::getOrderId, item.getId());
-            ordersDto.setOrderDetails(orderDetailService.list(lambdaQueryWrapper));
-            return ordersDto;
-        }).collect(Collectors.toList());
-        dtoPage.setRecords(ordersDtos);
-        return R.success(dtoPage);
+
+
+    @GetMapping({"/page"})
+    public R<Page<Orders>> employeePage(int page, int pageSize){
+        Page<Orders> originPage = new Page<>(page,pageSize);
+        //查询订单基本信息
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        // select * from orders order by ? DESC
+        queryWrapper.orderByDesc(Orders::getOrderTime);
+        ordersService.page(originPage,queryWrapper);
+        return R.success(originPage);
+
+
+
     }
 }
