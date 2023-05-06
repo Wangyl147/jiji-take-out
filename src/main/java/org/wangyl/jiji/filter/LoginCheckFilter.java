@@ -60,7 +60,8 @@ public class LoginCheckFilter implements Filter {
         if(request.getSession().getAttribute("employee")!=null){
             Long empId =(Long) request.getSession().getAttribute("employee");
 
-            log.info("员工已登录，ID为：{}",empId);
+            log.info("员工已登录，ID为：{}，请求地址为{}",empId,requestURI);
+
 
             BaseContext.setCurrentId(empId);
 
@@ -73,7 +74,7 @@ public class LoginCheckFilter implements Filter {
             //从session取出userid存入threadLocal供同线程其他方法使用
             Long usrId =(Long) request.getSession().getAttribute("user");
 
-            log.info("用户已登录，ID为：{}",usrId);
+            log.info("用户已登录，ID为：{}，请求地址为{}",usrId,requestURI);
 
             BaseContext.setCurrentId(usrId);
 
@@ -84,7 +85,7 @@ public class LoginCheckFilter implements Filter {
         //5、如果未登录则返回未登录结果
         //不需要进行页面跳转，前端会自动根据后端返回的数据完成跳转
         //以输出流方式向客户端页面响应数据
-        log.info("用户未登录");
+        log.info("用户未登录，请求地址为{}",requestURI);
         response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
         return;
 

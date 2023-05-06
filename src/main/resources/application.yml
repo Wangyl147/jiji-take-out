@@ -59,7 +59,7 @@ spring:
     password: 123456
   cache:
     redis:
-      time-to-live: 1800000 # 缓存过期时间
+      time-to-live: 1800000 # 缓存过期时间（ms）
 
 mybatis-plus:
   configuration:
@@ -70,5 +70,5 @@ mybatis-plus:
     db-config:
       id-type: ASSIGN_ID
 jiji:
-  #path: /Users/wyl/Desktop/img/
-  path: /usr/local/app/img/
+  path: /Users/wyl/Desktop/img/
+  #path: /usr/local/app/img/
