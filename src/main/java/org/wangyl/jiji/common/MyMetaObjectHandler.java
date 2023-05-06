@@ -28,8 +28,11 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         metaObject.setValue("createTime", LocalDateTime.now());
         metaObject.setValue("updateTime", LocalDateTime.now());
 
-        metaObject.setValue("createUser", BaseContext.getCurrentId());
-        metaObject.setValue("updateUser", BaseContext.getCurrentId());
+        metaObject.setValue("createUser", ShiroUtils.getEmployeeOrUserId());
+        metaObject.setValue("updateUser", ShiroUtils.getEmployeeOrUserId());
+
+//        metaObject.setValue("createUser", BaseContext.getCurrentId());
+//        metaObject.setValue("updateUser", BaseContext.getCurrentId());
     }
 
     //更新时自动填充
@@ -39,6 +42,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         log.info(metaObject.toString());
         metaObject.setValue("updateTime", LocalDateTime.now());
 
-        metaObject.setValue("updateUser", BaseContext.getCurrentId());
+        metaObject.setValue("updateUser", ShiroUtils.getEmployeeOrUserId());
+        //metaObject.setValue("updateUser", BaseContext.getCurrentId());
     }
 }

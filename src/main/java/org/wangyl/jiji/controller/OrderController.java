@@ -3,20 +3,12 @@ package org.wangyl.jiji.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.wangyl.jiji.common.BaseContext;
-import org.wangyl.jiji.common.CustomException;
 import org.wangyl.jiji.common.R;
-import org.wangyl.jiji.dto.OrdersDto;
-import org.wangyl.jiji.entity.OrderDetail;
+import org.wangyl.jiji.common.ShiroUtils;
 import org.wangyl.jiji.entity.Orders;
-import org.wangyl.jiji.service.OrderDetailService;
 import org.wangyl.jiji.service.OrdersService;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -42,7 +34,8 @@ public class OrderController {
         //查询订单基本信息
         LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
         // select * from orders where user_id=? order by ? DESC
-        queryWrapper.eq(Orders::getUserId, BaseContext.getCurrentId());
+        //queryWrapper.eq(Orders::getUserId, BaseContext.getCurrentId());
+        queryWrapper.eq(Orders::getUserId, ShiroUtils.getEmployeeOrUserId());
         queryWrapper.orderByDesc(Orders::getOrderTime);
         ordersService.page(originPage,queryWrapper);
         return  R.success(originPage);

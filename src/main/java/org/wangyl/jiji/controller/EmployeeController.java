@@ -4,10 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.LockedAccountException;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.wangyl.jiji.common.R;
+import org.wangyl.jiji.common.SaltUtils;
+import org.wangyl.jiji.common.ShiroUtils;
 import org.wangyl.jiji.entity.Employee;
 import org.wangyl.jiji.service.EmployeeService;
 import javax.servlet.http.HttpServletRequest;
@@ -27,34 +34,24 @@ public class EmployeeController {
     // 加入request是因为需要把员工id存入request的session中，如果不存session，后续跳转其他页面就不知道它有没有登录
     // @RequestBody将固定格式的数据(如json)封装为JavaBean对象
     public R<Employee> login(HttpServletRequest request, @RequestBody Employee employee) {
+        Subject subject = ShiroUtils.getSubject();
 
-        //1、将页面提交的密码password进行md5加密处理
-        String password = employee.getPassword();
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        UsernamePasswordToken token = new UsernamePasswordToken(employee.getUsername(), employee.getPassword());
 
-        //2、根据页面提交的用户名username查询数据库
-        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Employee::getUsername, employee.getUsername());//查询条件：等值查询
-        Employee emp = employeeService.getOne(queryWrapper);
-
-        //3、如果没有查询到则返回登录失败结果
-        if (emp == null) {
+        try {
+            subject.login(token);
+        }catch (UnknownAccountException e){
             return R.error("用户不存在");
+        }catch (IncorrectCredentialsException e){
+            return R.error("密码错误");
+        }catch (LockedAccountException e){
+            return R.error("账户被锁定");
         }
+        subject.hasRole("employee");
 
-        //4、密码比对，如果不一致则返回登录失败结果
-        if (!emp.getPassword().equals(password)) {
-            return R.error("用户名或密码错误");
-        }
+        return R.success(ShiroUtils.getEmployee());
 
-        //5、查香员工状态，如果为已禁用状态，则返回员工已禁用结果
-        if (emp.getStatus() == 0) {
-            return R.error("账号已禁用");
-        }
 
-        //6、登录成功，将员工id存入Session并返回登录成功结果
-        request.getSession().setAttribute("employee", emp.getId());
-        return R.success(emp);
     }
 
     //员工退出
@@ -71,7 +68,8 @@ public class EmployeeController {
         log.info("新增员工，员工信息{}", employee.toString());
 
         //设置初始密码123456，但是要md5加密
-        employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+        String salt= SaltUtils.generateSalt();
+        employee.setPassword(DigestUtils.md5DigestAsHex((DigestUtils.md5DigestAsHex("123456".getBytes())+salt).getBytes()));
 
         //这部分属于公共字段，很多表中都有，可以把它们放在某个地方统一处理
         //employee.setCreateTime(LocalDateTime.now());

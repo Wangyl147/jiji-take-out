@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
 import org.wangyl.jiji.common.BaseContext;
 import org.wangyl.jiji.common.R;
+import org.wangyl.jiji.common.ShiroUtils;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
@@ -18,7 +19,7 @@ import java.io.IOException;
  * 过滤器是门口的保安，拦截器是公司里巡逻的保安
  */
 @Slf4j
-@WebFilter(filterName = "loginCheckFilter",urlPatterns = "/*")
+//@WebFilter(filterName = "loginCheckFilter",urlPatterns = "/*")
 public class LoginCheckFilter implements Filter {
     // 路径匹配器，支持通配符
     public static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
@@ -30,63 +31,21 @@ public class LoginCheckFilter implements Filter {
 
         //1、获取本次请求的URI
         String requestURI = request.getRequestURI();
-        //log.info("已拦截到请求：{}",requestURI);
-        // 白名单
-        String[] urls = new String[]{
-                "/employee/login",//正常登录途径
-                "/employee/logout",
-                "/backend/**",//静态资源不作限制
-                "/front/**",
-                "/common/**",
-                "/user/sendMsg",//获取验证码
-                "/user/login",//登录url须放行
-                "/doc.html",
-                "/webjars/**",
-                "/swagger-resources",
-                "/v2/api-docs"
-        };
-        //2、判断本次请求是否需要处理
-        boolean check = check(urls,requestURI);
-
-
-        //3、如果不需要处理，直接放行
-        if (check){
-            //log.info("本次请求无需处理：{}",request.getRequestURI());
+        if(ShiroUtils.getSubject().hasRole("employee")){
+            log.info("employee登录，请求地址为{}",requestURI);
             filterChain.doFilter(request,response);
             return;
         }
-
-        //4-1、判断employee登录状态，如果已登录则放行
-        if(request.getSession().getAttribute("employee")!=null){
-            Long empId =(Long) request.getSession().getAttribute("employee");
-
-            log.info("员工已登录，ID为：{}",empId);
-
-            BaseContext.setCurrentId(empId);
-
+        if(ShiroUtils.getSubject().hasRole("user")){
+            log.info("user登录，请求地址为{}",requestURI);
             filterChain.doFilter(request,response);
             return;
         }
-
-        //4-2、判断user登录状态，如果已登录则放行
-        if(request.getSession().getAttribute("user")!=null){
-            //从session取出userid存入threadLocal供同线程其他方法使用
-            Long usrId =(Long) request.getSession().getAttribute("user");
-
-            log.info("用户已登录，ID为：{}",usrId);
-
-            BaseContext.setCurrentId(usrId);
-
-            filterChain.doFilter(request,response);
-            return;
-        }
-
         //5、如果未登录则返回未登录结果
         //不需要进行页面跳转，前端会自动根据后端返回的数据完成跳转
         //以输出流方式向客户端页面响应数据
-        log.info("用户未登录");
+        log.info("未登录，请求地址为{}",requestURI);
         response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
-        return;
 
     }
 

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.wangyl.jiji.common.BaseContext;
+import org.wangyl.jiji.common.ShiroUtils;
 import org.wangyl.jiji.dao.AddressBookMapper;
 import org.wangyl.jiji.entity.AddressBook;
 import org.wangyl.jiji.service.AddressBookService;
@@ -22,7 +23,8 @@ public class AddressBookServiceImpl extends ServiceImpl<AddressBookMapper, Addre
         //先把该用户的所有记录都设为不默认
         //update address_book set is_default=0 where user_id=?
         LambdaUpdateWrapper<AddressBook> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());
+        //updateWrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());
+        updateWrapper.eq(AddressBook::getUserId, ShiroUtils.getEmployeeOrUserId());
         updateWrapper.set(AddressBook::getIsDefault,0);
 
         this.update(updateWrapper);

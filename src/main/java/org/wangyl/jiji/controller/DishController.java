@@ -63,7 +63,7 @@ public class DishController {
     //在开始时调用，也会在列表信息变动、搜索时调用
     @GetMapping("/page")
     public R<Page<DishDto>> page(int page,int pageSize,String name){
-        /*
+        /**
          * 为什么不扩展service方法，我认为是因为page()函数的返回方式不太一样
          * page()函数返回的是void，但其内部的Page参数却发生了改变，这可能是调用了一些底层的功能
          * 如果在service内实现新的page()方法，就也要再手动调用底层功能，很不方便

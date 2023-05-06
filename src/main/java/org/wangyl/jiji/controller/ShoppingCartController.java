@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.wangyl.jiji.common.BaseContext;
 import org.wangyl.jiji.common.R;
+import org.wangyl.jiji.common.ShiroUtils;
 import org.wangyl.jiji.entity.ShoppingCart;
 import org.wangyl.jiji.service.ShoppingCartService;
 
@@ -24,11 +25,13 @@ public class ShoppingCartController {
     //新增
     @PostMapping("/add")
     public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart){
-        shoppingCart.setUserId(BaseContext.getCurrentId());
+        //shoppingCart.setUserId(BaseContext.getCurrentId());
+        shoppingCart.setUserId(ShiroUtils.getEmployeeOrUserId());
         //判断购物车里有没有对应id的商品
         //select * from shopping_cart where user_id=? and dish_id=?/setmeal_id=?
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+        //queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+        queryWrapper.eq(ShoppingCart::getUserId,ShiroUtils.getEmployeeOrUserId());
         queryWrapper.eq(null!=shoppingCart.getSetmealId(),ShoppingCart::getSetmealId,shoppingCart.getSetmealId());
         queryWrapper.eq(null!=shoppingCart.getDishId(),ShoppingCart::getDishId,shoppingCart.getDishId());
         ShoppingCart shoppingCartInDb = shoppingCartService.getOne(queryWrapper);
@@ -49,7 +52,8 @@ public class ShoppingCartController {
     //显示
     @GetMapping("/list")
     public R<List<ShoppingCart>> list(){
-        Long userId = BaseContext.getCurrentId();
+        //Long userId = BaseContext.getCurrentId();
+        Long userId =ShiroUtils.getEmployeeOrUserId();
         //select * from ahopping_cart where user_id=?
         LambdaQueryWrapper<ShoppingCart> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(ShoppingCart::getUserId,userId);
@@ -60,12 +64,14 @@ public class ShoppingCartController {
     //修改
     @PostMapping("/sub")
     public R<ShoppingCart> sub(@RequestBody ShoppingCart shoppingCart){
-        shoppingCart.setUserId(BaseContext.getCurrentId());
+        //shoppingCart.setUserId(BaseContext.getCurrentId());
+        shoppingCart.setUserId(ShiroUtils.getEmployeeOrUserId());
 
         //判断购物车里有没有对应id的商品
         //select * from shopping_cart where user_id=? and dish_id=?/setmeal_id=?
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+        //queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+        queryWrapper.eq(ShoppingCart::getUserId,ShiroUtils.getEmployeeOrUserId());
         queryWrapper.eq(null!=shoppingCart.getSetmealId(),ShoppingCart::getSetmealId,shoppingCart.getSetmealId());
         queryWrapper.eq(null!=shoppingCart.getDishId(),ShoppingCart::getDishId,shoppingCart.getDishId());
         ShoppingCart shoppingCartInDb = shoppingCartService.getOne(queryWrapper);
@@ -88,7 +94,8 @@ public class ShoppingCartController {
     //删除
     @DeleteMapping("/clean")
     public R<String> clean(){
-        Long userId = BaseContext.getCurrentId();
+        //Long userId = BaseContext.getCurrentId();
+        Long userId = ShiroUtils.getEmployeeOrUserId();
         //delete from shopping_cart where user_id=?
         LambdaQueryWrapper<ShoppingCart> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(ShoppingCart::getUserId,userId);

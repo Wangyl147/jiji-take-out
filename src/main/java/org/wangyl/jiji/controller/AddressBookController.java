@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.wangyl.jiji.common.BaseContext;
 import org.wangyl.jiji.common.R;
+import org.wangyl.jiji.common.ShiroUtils;
 import org.wangyl.jiji.entity.AddressBook;
 import org.wangyl.jiji.service.AddressBookService;
 
@@ -25,7 +25,8 @@ public class AddressBookController {
     @PostMapping
     public R<String> save(@RequestBody AddressBook addressBook){
         //get到过滤器set的用户id
-        addressBook.setUserId(BaseContext.getCurrentId());
+        //addressBook.setUserId(BaseContext.getCurrentId());
+        addressBook.setUserId(ShiroUtils.getEmployeeOrUserId());
         addressBookService.save(addressBook);
         return R.success("添加地址成功");
     }
@@ -35,7 +36,8 @@ public class AddressBookController {
     public R<List<AddressBook>> list(){
         //select * from address_book where user_id=?
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BaseContext.getCurrentId()!=null,AddressBook::getUserId,BaseContext.getCurrentId());
+        //queryWrapper.eq(BaseContext.getCurrentId()!=null,AddressBook::getUserId,BaseContext.getCurrentId());
+        queryWrapper.eq(ShiroUtils.getEmployeeOrUserId()!=null,AddressBook::getUserId,ShiroUtils.getEmployeeOrUserId());
         queryWrapper.orderByDesc(AddressBook::getCreateTime);
         List<AddressBook> addressBooks = addressBookService.list(queryWrapper);
         return R.success(addressBooks);
@@ -53,7 +55,8 @@ public class AddressBookController {
     public R<AddressBook> getDefault(){
         //select * from address_book where user_id=? and is_default=1
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AddressBook::getUserId,BaseContext.getCurrentId());
+//        queryWrapper.eq(AddressBook::getUserId,BaseContext.getCurrentId());
+        queryWrapper.eq(AddressBook::getUserId,ShiroUtils.getEmployeeOrUserId());
         queryWrapper.eq(AddressBook::getIsDefault,1);
         AddressBook addressBook = addressBookService.getOne(queryWrapper);
         return R.success(addressBook);

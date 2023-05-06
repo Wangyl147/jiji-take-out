@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.wangyl.jiji.common.BaseContext;
 import org.wangyl.jiji.common.CustomException;
+import org.wangyl.jiji.common.ShiroUtils;
 import org.wangyl.jiji.dao.OrdersMapper;
 import org.wangyl.jiji.entity.*;
 import org.wangyl.jiji.service.*;
@@ -38,7 +39,8 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Transactional
     public void submit(Orders orders) {
         //通过basecontext获取用户ID
-        Long currentId = BaseContext.getCurrentId();
+        //Long currentId = BaseContext.getCurrentId();
+        Long currentId = ShiroUtils.getEmployeeOrUserId();
         // 通过用户ID查询购物车
         // select * from shopping_cart where user_id=?
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
