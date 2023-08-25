@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wangyl.jiji.common.R;
 
+import org.wangyl.jiji.common.SMSUtils;
 import org.wangyl.jiji.common.ValidateCodeUtils;
 import org.wangyl.jiji.entity.User;
 import org.wangyl.jiji.service.UserService;
@@ -44,7 +45,7 @@ public class UserController {
             //缓存验证码，并设置有效期5分钟
             redisTemplate.opsForValue().set(phoneNumber,code,5, TimeUnit.MINUTES);
             //调用api
-            //SMSUtils.sendMessage("阿里云短信测试","SMS_154950909",phoneNumber,code);
+            SMSUtils.sendMessage("阿里云短信测试","SMS_154950909",phoneNumber,code);
             //保存验证码到session
             //session.setAttribute(phoneNumber,code);
             return R.success("发送验证码成功");

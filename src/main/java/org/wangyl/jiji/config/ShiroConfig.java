@@ -18,7 +18,7 @@ public class ShiroConfig {
 
 
     @Bean
-    public ShiroFilterFactoryBean getShiroFilterFactoryBean(DefaultWebSecurityManager securityManager){
+    public ShiroFilterFactoryBean getShiroFilterFactoryBean(DefaultWebSecurityManager securityManager){//通过get方法自动注入
         ShiroFilterFactoryBean shiroFilterFactoryBean=new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         Map<String,String> interceptMap=new HashMap<>();
@@ -53,7 +53,7 @@ public class ShiroConfig {
     }
 
     @Bean
-    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Autowired ShiroRealm shiroRealm){
+    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Autowired ShiroRealm shiroRealm){//通过get方法自动注入
         DefaultWebSecurityManager webSecurityManager=new DefaultWebSecurityManager();
         webSecurityManager.setRealm(shiroRealm);
         return webSecurityManager;

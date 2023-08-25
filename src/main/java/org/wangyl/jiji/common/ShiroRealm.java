@@ -39,7 +39,7 @@ public class ShiroRealm extends AuthorizingRealm {
 
         if(object instanceof Employee){
             roleList.add("employee");
-            if()
+
         }
         if(object instanceof User){
 
